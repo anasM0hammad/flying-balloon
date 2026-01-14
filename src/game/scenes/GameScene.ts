@@ -2,7 +2,9 @@ import Phaser, { Physics } from 'phaser';
 
 export default class GameScene extends Phaser.Scene {
   private isPaused: boolean = false;
+  private isOver: boolean = false;
   private pauseOverlay?: Phaser.GameObjects.Container;
+  private overlay?: Phaser.GameObjects.Container;
   private band: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
 
   constructor() {
@@ -21,7 +23,9 @@ export default class GameScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
-
+    if(this.isOver){
+      this.restartGame();
+    }
     // Add sky background
     const sky = this.add.image(width / 2, height / 2, 'sky');
     sky.setDisplaySize(width, height);
@@ -68,9 +72,12 @@ export default class GameScene extends Phaser.Scene {
   }
 
   update() {
-    if (this.isPaused) return;
+    if (this.isPaused || this.isOver) return;
     // Game loop
 
+    if(this.band && this.band.y > this.scale.height){
+      this.gameOver();
+    }
   }
 
   private togglePause() {
@@ -135,6 +142,35 @@ export default class GameScene extends Phaser.Scene {
     return button;
   }
 
+  private createRestartButton(x: number, y: number) {
+    const button = this.add.container(x, y);
+
+    const bg = this.add.rectangle(0, 0, 200, 50, 0x4a90e2);
+    
+    const label = this.add.text(0, 0, 'Restart', {
+      fontSize: '24px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+    }).setOrigin(0.5);
+
+    button.add([bg, label]);
+    button.setSize(200, 50);
+    button.setInteractive({ useHandCursor: true });
+    button.on('pointerdown', () => {
+      this.create();
+    });
+
+    button.on('pointerover', () => {
+      bg.setAlpha(0.8);
+    });
+
+    button.on('pointerout', () => {
+      bg.setAlpha(1);
+    });
+
+    return button;
+  }
+
   private resumeGame() {
     this.isPaused = false;
     this.physics.resume();
@@ -143,5 +179,41 @@ export default class GameScene extends Phaser.Scene {
       this.pauseOverlay.destroy();
       this.pauseOverlay = undefined;
     }
+  }
+
+  private restartGame() {
+    this.isOver = false;
+    this.physics.resume();
+    if(this.overlay){
+      this.overlay.destroy();
+      this.overlay = undefined;
+    }
+
+    // Reset the current score also
+  }
+
+  private gameOver() {
+    const { width, height } = this.scale;
+
+    this.isOver = true;
+    this.physics.pause();
+    this.overlay = this.add.container(0,0);
+    this.overlay.setDepth(1000);
+
+     // Semi-transparent background
+     const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.7);
+     overlay.setOrigin(0);
+
+     // gameover text
+     const gameoverText = this.add.text(width / 2, height * 0.4, 'Game Over', {
+       fontSize: '32px',
+       color: '#ffffff',
+       fontStyle: 'bold',
+     }).setOrigin(0.5);
+
+     // Restart button
+     const restartButton = this.createRestartButton(width / 2, height * 0.55);
+
+     this.overlay.add([overlay, gameoverText, restartButton]);
   }
 }
