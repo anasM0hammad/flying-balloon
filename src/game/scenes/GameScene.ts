@@ -1,15 +1,22 @@
-import Phaser from 'phaser';
+import Phaser, { Physics } from 'phaser';
 
 export default class GameScene extends Phaser.Scene {
   private isPaused: boolean = false;
   private pauseOverlay?: Phaser.GameObjects.Container;
+  private band: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
 
   constructor() {
     super('GameScene');
   }
 
+  jump(velocity: number = -300) {
+    if(!this.band) return;
+    this.band.body.setVelocityY(velocity);
+  }
+
   preload() {
     this.load.image('sky', 'assets/images/sky.png');
+    this.load.image('band', 'assets/images/band.png');
   }
 
   create() {
@@ -53,12 +60,17 @@ export default class GameScene extends Phaser.Scene {
       pauseText.setAlpha(1);
     });
 
+    this.input.keyboard?.on('keydown-SPACE',() => {
+      this.jump();
+    });
     // Your game logic here
+    this.band = this.physics.add.image(width / 10, height / 2, 'band');
   }
 
   update() {
     if (this.isPaused) return;
     // Game loop
+
   }
 
   private togglePause() {
