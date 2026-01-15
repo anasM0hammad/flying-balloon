@@ -5,20 +5,23 @@ export default class GameScene extends Phaser.Scene {
   private isOver: boolean = false;
   private pauseOverlay?: Phaser.GameObjects.Container;
   private overlay?: Phaser.GameObjects.Container;
-  private band: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
+  private balloon: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
+  private lowerPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
+  private upperPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
 
   constructor() {
     super('GameScene');
   }
 
   jump(velocity: number = -300) {
-    if(!this.band) return;
-    this.band.body.setVelocityY(velocity);
+    if(!this.balloon) return;
+    this.balloon.body.setVelocityY(velocity);
   }
 
   preload() {
     this.load.image('sky', 'assets/images/sky.png');
-    this.load.image('band', 'assets/images/band.png');
+    this.load.image('balloon', 'assets/images/balloon.png');
+    this.load.image('pipe', 'assets/images/pipe.png');
   }
 
   create() {
@@ -68,14 +71,17 @@ export default class GameScene extends Phaser.Scene {
       this.jump();
     });
     // Your game logic here
-    this.band = this.physics.add.sprite(width / 10, height / 2, 'band');
+    this.balloon = this.physics.add.sprite(width / 10, height / 2, 'balloon');
+    this.balloon.setGravityY(400);
+    this.upperPipe = this.physics.add.sprite(200, 300, 'pipe').setOrigin(0, 1);
+    this.lowerPipe = this.physics.add.sprite(200, this.upperPipe.y + this.getPipeGap(), 'pipe').setOrigin(0,0);
   }
 
   update() {
     if (this.isPaused || this.isOver) return;
     // Game loop
 
-    if(this.band && this.band.y > this.scale.height){
+    if(this.balloon && this.balloon.y > this.scale.height){
       this.gameOver();
     }
   }
@@ -231,5 +237,10 @@ export default class GameScene extends Phaser.Scene {
     });
 
      this.overlay.add([overlay, gameoverText, restartButton, exitText]);
+  }
+
+  getPipeGap() {
+    const random = Math.random() * 300;
+    return random + 150;
   }
 }
