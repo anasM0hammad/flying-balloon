@@ -73,7 +73,7 @@ export default class GameScene extends Phaser.Scene {
     // Your game logic here
     this.balloon = this.physics.add.sprite(width / 10, height / 2, 'balloon');
     this.balloon.setGravityY(400);
-    this.upperPipe = this.physics.add.sprite(200, 300, 'pipe').setOrigin(0, 1);
+    this.upperPipe = this.physics.add.sprite(200, this.getUpperPipePosition(), 'pipe').setOrigin(0, 1);
     this.lowerPipe = this.physics.add.sprite(200, this.upperPipe.y + this.getPipeGap(), 'pipe').setOrigin(0,0);
   }
 
@@ -240,7 +240,10 @@ export default class GameScene extends Phaser.Scene {
   }
 
   getPipeGap() {
-    const random = Math.random() * 300;
-    return random + 150;
+    return Phaser.Math.Between(150, 350);
+  }
+
+  getUpperPipePosition() {
+    return Phaser.Math.Between(this.scale.height * 0.2, this.scale.height * 0.7);
   }
 }
