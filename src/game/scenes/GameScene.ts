@@ -68,7 +68,7 @@ export default class GameScene extends Phaser.Scene {
       this.jump();
     });
     // Your game logic here
-    this.band = this.physics.add.image(width / 10, height / 2, 'band');
+    this.band = this.physics.add.sprite(width / 10, height / 2, 'band');
   }
 
   update() {
@@ -82,6 +82,10 @@ export default class GameScene extends Phaser.Scene {
 
   private togglePause() {
     const { width, height } = this.scale;
+
+    if(this.isOver){
+      return;
+    }
 
     if (!this.isPaused) {
       // Pause the game
@@ -214,6 +218,18 @@ export default class GameScene extends Phaser.Scene {
      // Restart button
      const restartButton = this.createRestartButton(width / 2, height * 0.55);
 
-     this.overlay.add([overlay, gameoverText, restartButton]);
+     // exit text
+     const exitText = this.add.text(width / 2, height*0.55 + 60 , 'Exit', {
+      fontSize: '24px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+    }).setOrigin(0.5);
+
+    exitText.setInteractive({ useHandCursor: true });
+    exitText.on('pointerover', () => {
+      this.scene.start('StartScene');
+    });
+
+     this.overlay.add([overlay, gameoverText, restartButton, exitText]);
   }
 }
