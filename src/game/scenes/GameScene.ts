@@ -5,7 +5,7 @@ export default class GameScene extends Phaser.Scene {
   private isOver: boolean = false;
   private pauseOverlay?: Phaser.GameObjects.Container;
   private overlay?: Phaser.GameObjects.Container;
-  private balloon: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
+  private balloon: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | undefined;
   // private lowerPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
   // private upperPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
   private pipes: Physics.Arcade.Group | undefined;
@@ -17,14 +17,12 @@ export default class GameScene extends Phaser.Scene {
     this.score = 0;
   }
 
-  jump(velocity: number = -220) {
-    if(!this.balloon) return;
-    this.balloon.body.setVelocityY(velocity);
-  }
-
   preload() {
     this.load.image('sky', 'assets/images/sky.png');
-    this.load.image('balloon', 'assets/images/balloon.png');
+    this.load.spritesheet('balloon', 'assets/images/balloonSprite.png', {
+      frameWidth: 162,
+      frameHeight: 240
+    });
     this.load.image('pipe', 'assets/images/pipe.png');
   }
 
@@ -72,7 +70,7 @@ export default class GameScene extends Phaser.Scene {
       this.jump();
     });
     // Your game logic here
-    this.balloon = this.physics.add.sprite(width * 0.15, height / 2, 'balloon');
+    this.balloon = this.physics.add.sprite(width * 0.15, height / 2, 'balloon').setScale(0.25);
     this.balloon.setGravityY(500);
 
     this.pipes = this.physics.add.group();
@@ -86,6 +84,19 @@ export default class GameScene extends Phaser.Scene {
 
     this.physics.add.collider(this.balloon, this.pipes, this.gameOver, undefined, this);
     this.createScore();
+    this.anims.create({
+      key: 'fly',
+      frames: this.anims.generateFrameNumbers('balloon', { start: 13, end: 15 }),
+      frameRate: 10,
+      repeat: 0,
+      duration: 200,
+    });
+
+    this.balloon.on('animationcomplete', (animation: any) => {
+      if (animation.key === 'fly') {
+          this.balloon?.setFrame(0); // Replace 0 with your initial frame index or key
+      }
+  });
   }
 
   update() {
@@ -160,6 +171,13 @@ export default class GameScene extends Phaser.Scene {
     this.score += points;
     this.scoreText?.setText(`Score ${this.score}`);
   }
+
+  jump(velocity: number = -220) {
+    if(!this.balloon || this.isPaused) return;
+    this.balloon.body.setVelocityY(velocity);
+    this.balloon.play('fly');
+  }
+
 
   private togglePause() {
     const { width, height } = this.scale;
