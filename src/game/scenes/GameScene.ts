@@ -9,9 +9,12 @@ export default class GameScene extends Phaser.Scene {
   // private lowerPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
   // private upperPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
   private pipes: Physics.Arcade.Group | undefined;
+  private score: number;
+  private scoreText: Phaser.GameObjects.Text | undefined;
 
   constructor() {
     super('GameScene');
+    this.score = 0;
   }
 
   jump(velocity: number = -220) {
@@ -70,7 +73,7 @@ export default class GameScene extends Phaser.Scene {
     });
     // Your game logic here
     this.balloon = this.physics.add.sprite(width * 0.15, height / 2, 'balloon');
-    this.balloon.setGravityY(400);
+    this.balloon.setGravityY(500);
 
     this.pipes = this.physics.add.group();
     for(let i=0; i<4; i++){
@@ -82,18 +85,27 @@ export default class GameScene extends Phaser.Scene {
     this.pipes.setVelocityX(-200);
 
     this.physics.add.collider(this.balloon, this.pipes, this.gameOver, undefined, this);
+    this.createScore();
   }
 
   update() {
     if (this.isPaused || this.isOver) return;
     // Game loop
 
-    if(this.balloon && this.balloon.y > this.scale.height){
+    if(this.balloon && (this.balloon.y > this.scale.height || this.balloon.y <= 0)){
       this.gameOver();
     }
 
     this.recyclePipes();
     
+  }
+
+  createScore(){
+    this.scoreText = this.add.text(this.scale.width * 0.5, 20, `Score: ${this.score}`, {
+      fontSize: '24px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+    }).setOrigin(0.5, 0);
   }
 
   recyclePipes() {
@@ -123,6 +135,7 @@ export default class GameScene extends Phaser.Scene {
 
     if(uPipe && lPipe){
       this.placePipes(uPipe, lPipe);
+      this.increaseScore();
     }
   }
 
@@ -141,6 +154,11 @@ export default class GameScene extends Phaser.Scene {
     });
 
     return rightX;
+  }
+
+  increaseScore(points: number = 1){
+    this.score += points;
+    this.scoreText?.setText(`Score ${this.score}`);
   }
 
   private togglePause() {
@@ -302,6 +320,15 @@ export default class GameScene extends Phaser.Scene {
     });
 
      this.overlay.add([overlay, gameoverText, restartButton, exitText]);
+     this.setHighScore();
+  }
+
+  setHighScore(){
+    const highScore = localStorage.getItem('highScore') || 0;
+    if(this.score > +highScore){
+      localStorage.setItem('highScore', this.score.toString());
+    }
+    this.score = 0;
   }
 
   getPipeGap() {
