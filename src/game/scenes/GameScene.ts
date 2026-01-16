@@ -1,4 +1,6 @@
-import Phaser, { Physics } from 'phaser';
+import Phaser, { GameObjects, Physics } from 'phaser';
+
+const PIPE_WIDTH = 40;
 
 export default class GameScene extends Phaser.Scene {
   private isPaused: boolean = false;
@@ -6,14 +8,15 @@ export default class GameScene extends Phaser.Scene {
   private pauseOverlay?: Phaser.GameObjects.Container;
   private overlay?: Phaser.GameObjects.Container;
   private balloon: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
-  private lowerPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
-  private upperPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
+  // private lowerPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
+  // private upperPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
+  private pipes: Physics.Arcade.Group | undefined;
 
   constructor() {
     super('GameScene');
   }
 
-  jump(velocity: number = -300) {
+  jump(velocity: number = -250) {
     if(!this.balloon) return;
     this.balloon.body.setVelocityY(velocity);
   }
@@ -71,10 +74,17 @@ export default class GameScene extends Phaser.Scene {
       this.jump();
     });
     // Your game logic here
-    this.balloon = this.physics.add.sprite(width / 10, height / 2, 'balloon');
+    this.balloon = this.physics.add.sprite(width * 0.15, height / 2, 'balloon');
     this.balloon.setGravityY(400);
-    this.upperPipe = this.physics.add.sprite(200, this.getUpperPipePosition(), 'pipe').setOrigin(0, 1);
-    this.lowerPipe = this.physics.add.sprite(200, this.upperPipe.y + this.getPipeGap(), 'pipe').setOrigin(0,0);
+
+    this.pipes = this.physics.add.group();
+    for(let i=0; i<4; i++){
+      const upperPipe = this.pipes.create(0, 0, 'pipe').setOrigin(0, 1);
+      const lowerPipe = this.pipes.create(0, 0, 'pipe').setOrigin(0,0);
+      this.placePipes(upperPipe, lowerPipe);
+    }
+
+    this.pipes.setVelocityX(-200);
   }
 
   update() {
@@ -84,6 +94,56 @@ export default class GameScene extends Phaser.Scene {
     if(this.balloon && this.balloon.y > this.scale.height){
       this.gameOver();
     }
+
+    this.recyclePipes();
+    
+  }
+
+  recyclePipes() {
+    if(!this.pipes) return;
+
+    if(this.pipes.getChildren().length < 4) return;
+
+    let uPipe: any = null;
+    let lPipe: any = null;
+
+    this.pipes.getChildren().forEach((pipe) => {
+      if((pipe as Phaser.Physics.Arcade.Sprite).x + PIPE_WIDTH < 0){
+        if(!uPipe){
+          uPipe = pipe;
+        }
+        else{
+          if(uPipe.y < pipe){
+            lPipe = uPipe;
+            uPipe = pipe;
+          }
+          else{
+            lPipe = pipe;
+          }
+        }
+      }
+    });
+
+    if(uPipe && lPipe){
+      this.placePipes(uPipe, lPipe);
+    }
+  }
+
+  placePipes(uPipe: any, lPipe: any){
+    uPipe.x = this.getRightMostPipe() + this.getPipeHorizontalDistance();
+    uPipe.y = this.getUpperPipePosition(),
+
+    lPipe.x = uPipe.x;
+    lPipe.y = uPipe.y + this.getPipeGap();
+  }
+
+  getRightMostPipe() {
+    let rightX = 0;
+    this.pipes?.getChildren().forEach((pipe) => {
+      rightX = Math.max(rightX, (pipe as any).x);
+    });
+
+    return rightX;
   }
 
   private togglePause() {
@@ -244,6 +304,10 @@ export default class GameScene extends Phaser.Scene {
   }
 
   getUpperPipePosition() {
-    return Phaser.Math.Between(this.scale.height * 0.2, this.scale.height * 0.7);
+    return Phaser.Math.Between(this.scale.height * 0.2, this.scale.height * 0.6);
+  }
+
+  getPipeHorizontalDistance() {
+    return Phaser.Math.Between(250, 350);
   }
 }
