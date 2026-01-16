@@ -257,13 +257,31 @@ export default class GameScene extends Phaser.Scene {
   }
 
   private resumeGame() {
-    this.isPaused = false;
-    this.physics.resume();
-    
     if (this.pauseOverlay) {
       this.pauseOverlay.destroy();
       this.pauseOverlay = undefined;
     }
+
+    let countDown = 3;
+    let countDownText = this.add.text(this.scale.width * 0.5, this.scale.height * 0.5, `Fly in ${countDown}`, {
+      fontSize: '20px',
+      color: '#ffffff',
+      fontStyle: 'bold',
+    }).setOrigin(0.5, 0)
+    const timeEvent = this.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        countDown--;
+        countDownText.setText(`Fly in ${countDown}`);
+        if(countDown <= 0){
+          countDownText.setText('');
+            this.isPaused = false;
+            this.physics.resume();
+            timeEvent.remove();
+        }
+      },
+      loop: true
+    });
   }
 
   private restartGame() {
