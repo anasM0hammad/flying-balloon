@@ -1,6 +1,4 @@
-import Phaser, { GameObjects, Physics } from 'phaser';
-
-const PIPE_WIDTH = 40;
+import Phaser, { Physics } from 'phaser';
 
 export default class GameScene extends Phaser.Scene {
   private isPaused: boolean = false;
@@ -16,7 +14,7 @@ export default class GameScene extends Phaser.Scene {
     super('GameScene');
   }
 
-  jump(velocity: number = -250) {
+  jump(velocity: number = -220) {
     if(!this.balloon) return;
     this.balloon.body.setVelocityY(velocity);
   }
@@ -29,9 +27,6 @@ export default class GameScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
-    if(this.isOver){
-      this.restartGame();
-    }
     // Add sky background
     const sky = this.add.image(width / 2, height / 2, 'sky');
     sky.setDisplaySize(width, height);
@@ -79,12 +74,14 @@ export default class GameScene extends Phaser.Scene {
 
     this.pipes = this.physics.add.group();
     for(let i=0; i<4; i++){
-      const upperPipe = this.pipes.create(0, 0, 'pipe').setOrigin(0, 1);
-      const lowerPipe = this.pipes.create(0, 0, 'pipe').setOrigin(0,0);
+      const upperPipe = this.pipes.create(0, 0, 'pipe').setImmovable().setOrigin(0, 1);
+      const lowerPipe = this.pipes.create(0, 0, 'pipe').setImmovable().setOrigin(0,0);
       this.placePipes(upperPipe, lowerPipe);
     }
 
     this.pipes.setVelocityX(-200);
+
+    this.physics.add.collider(this.balloon, this.pipes, this.gameOver, undefined, this);
   }
 
   update() {
@@ -108,7 +105,7 @@ export default class GameScene extends Phaser.Scene {
     let lPipe: any = null;
 
     this.pipes.getChildren().forEach((pipe) => {
-      if((pipe as Phaser.Physics.Arcade.Sprite).x + PIPE_WIDTH < 0){
+      if((pipe as Phaser.Physics.Arcade.Sprite).getBounds().right <= 0){
         if(!uPipe){
           uPipe = pipe;
         }
@@ -227,7 +224,7 @@ export default class GameScene extends Phaser.Scene {
     button.setSize(200, 50);
     button.setInteractive({ useHandCursor: true });
     button.on('pointerdown', () => {
-      this.create();
+      this.restartGame();
     });
 
     button.on('pointerover', () => {
@@ -253,11 +250,19 @@ export default class GameScene extends Phaser.Scene {
 
   private restartGame() {
     this.isOver = false;
-    this.physics.resume();
+    
     if(this.overlay){
       this.overlay.destroy();
       this.overlay = undefined;
     }
+
+    this.time.addEvent({
+      delay: 0,
+      callback: () => {
+        this.scene.restart();
+      },
+      loop: false,
+    })
 
     // Reset the current score also
   }
