@@ -6,16 +6,18 @@ export default class GameScene extends Phaser.Scene {
   private pauseOverlay?: Phaser.GameObjects.Container;
   private overlay?: Phaser.GameObjects.Container;
   private balloon: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | undefined;
-  private invertPipe: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | undefined;
   // private lowerPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
   // private upperPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
   private pipes: Physics.Arcade.Group | undefined;
   private score: number;
   private scoreText: Phaser.GameObjects.Text | undefined;
+  private coin: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | undefined;
+  private isCoin: number;
 
   constructor() {
     super('GameScene');
     this.score = 0;
+    this.isCoin = 0;
   }
 
   preload() {
@@ -25,6 +27,10 @@ export default class GameScene extends Phaser.Scene {
       frameHeight: 240
     });
     this.load.image('pipe', 'assets/images/towerSprite.png');
+    this.load.spritesheet('coin', 'assets/images/coin.png', {
+      frameWidth: 180,
+      frameHeight: 210
+    });
   }
 
   create() {
@@ -74,15 +80,17 @@ export default class GameScene extends Phaser.Scene {
     this.balloon = this.physics.add.sprite(width * 0.15, height / 2, 'balloon').setScale(0.25);
     this.balloon.setGravityY(500);
     this.balloon.setCircle(this.balloon.displayWidth * 2.1, 0, 0);
+    this.coin = this.physics.add.sprite(0, 0, 'coin').setScale(0.18).setOrigin(0.5,0.5);
 
     this.pipes = this.physics.add.group();
     for(let i=0; i<4; i++){
       const upperPipe = this.pipes.create(0, 0, 'pipe').setImmovable().setOrigin(0, 1).setFlipY(true);
       const lowerPipe = this.pipes.create(0, 0, 'pipe').setImmovable().setOrigin(0,0);
-      this.placePipes(upperPipe, lowerPipe);
+      this.placePipes(upperPipe, lowerPipe, i===3);
     }
 
     this.pipes.setVelocityX(-200);
+    this.coin.setVelocityX(-200);
 
     this.physics.add.collider(this.balloon, this.pipes, this.gameOver, undefined, this);
     this.createScore();
@@ -94,11 +102,20 @@ export default class GameScene extends Phaser.Scene {
       duration: 200,
     });
 
+    this.anims.create({
+      key: 'coin',
+      frameRate: 3,
+      repeat: -1,
+      frames: this.anims.generateFrameNumbers('coin', { start: 0, end: 4 })
+    });
+
     this.balloon.on('animationcomplete', (animation: any) => {
       if (animation.key === 'fly') {
           this.balloon?.setFrame(0); // Replace 0 with your initial frame index or key
       }
-  });
+    });
+
+    this.coin.play('coin');
   }
 
   update() {
@@ -147,17 +164,28 @@ export default class GameScene extends Phaser.Scene {
     });
 
     if(uPipe && lPipe){
-      this.placePipes(uPipe, lPipe);
+      this.isCoin++;
+      this.placePipes(uPipe, lPipe, !Boolean(this.isCoin % 4 && this.isCoin > 0));
       this.increaseScore();
     }
   }
 
-  placePipes(uPipe: any, lPipe: any){
+  placePipes(uPipe: any, lPipe: any, isCoin: boolean = false){
     uPipe.x = this.getRightMostPipe() + this.getPipeHorizontalDistance();
     uPipe.y = this.getUpperPipePosition(),
 
     lPipe.x = uPipe.x;
     lPipe.y = uPipe.y + this.getPipeGap();
+
+    if(isCoin){
+      this.placeCoin(uPipe.y, lPipe.y, lPipe.x);
+    }
+  }
+
+  placeCoin(upperY: number, lowerY: number, x: number) {
+    const position = Phaser.Math.Between(upperY + (this.coin?.height as number) * 0.5, lowerY - (this.coin?.height as number) * 0.5);
+    this.coin?.setX(x + 18);
+    this.coin?.setY(position);
   }
 
   getRightMostPipe() {
@@ -359,6 +387,7 @@ export default class GameScene extends Phaser.Scene {
 
      this.overlay.add([overlay, gameoverText, restartButton, exitText]);
      this.setHighScore();
+     this.isCoin = 0;
   }
 
   setHighScore(){
