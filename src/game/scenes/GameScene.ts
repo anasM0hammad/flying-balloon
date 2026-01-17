@@ -6,6 +6,7 @@ export default class GameScene extends Phaser.Scene {
   private pauseOverlay?: Phaser.GameObjects.Container;
   private overlay?: Phaser.GameObjects.Container;
   private balloon: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | undefined;
+  private invertPipe: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | undefined;
   // private lowerPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
   // private upperPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
   private pipes: Physics.Arcade.Group | undefined;
@@ -23,7 +24,7 @@ export default class GameScene extends Phaser.Scene {
       frameWidth: 162,
       frameHeight: 240
     });
-    this.load.image('pipe', 'assets/images/pipe.png');
+    this.load.image('pipe', 'assets/images/towerSprite.png');
   }
 
   create() {
@@ -72,10 +73,11 @@ export default class GameScene extends Phaser.Scene {
     // Your game logic here
     this.balloon = this.physics.add.sprite(width * 0.15, height / 2, 'balloon').setScale(0.25);
     this.balloon.setGravityY(500);
+    this.balloon.setCircle(this.balloon.displayWidth * 2.1, 0, 0);
 
     this.pipes = this.physics.add.group();
     for(let i=0; i<4; i++){
-      const upperPipe = this.pipes.create(0, 0, 'pipe').setImmovable().setOrigin(0, 1);
+      const upperPipe = this.pipes.create(0, 0, 'pipe').setImmovable().setOrigin(0, 1).setFlipY(true);
       const lowerPipe = this.pipes.create(0, 0, 'pipe').setImmovable().setOrigin(0,0);
       this.placePipes(upperPipe, lowerPipe);
     }

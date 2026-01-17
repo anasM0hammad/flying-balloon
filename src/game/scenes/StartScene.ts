@@ -18,8 +18,8 @@ export default class StartScene extends Phaser.Scene {
     sky.setDisplaySize(width, height);
 
     // Title
-    this.add.text(width / 2, height * 0.35, 'Flying Band', {
-      fontSize: '48px',
+    this.add.text(width / 2, height * 0.35, 'Flying Balloon', {
+      fontSize: '46px',
       color: '#ffffff',
       fontStyle: 'bold',
     }).setOrigin(0.5);
