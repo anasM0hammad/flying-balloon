@@ -77,10 +77,10 @@ export default class GameScene extends Phaser.Scene {
       this.jump();
     });
     // Your game logic here
+    this.coin = this.physics.add.sprite(0, 0, 'coin').setScale(0.18).setOrigin(0.5,0.5);
     this.balloon = this.physics.add.sprite(width * 0.15, height / 2, 'balloon').setScale(0.25);
     this.balloon.setGravityY(500);
     this.balloon.setCircle(this.balloon.displayWidth * 2.1, 0, 0);
-    this.coin = this.physics.add.sprite(0, 0, 'coin').setScale(0.18).setOrigin(0.5,0.5);
 
     this.pipes = this.physics.add.group();
     for(let i=0; i<4; i++){
@@ -127,7 +127,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     this.recyclePipes();
-    
+    this.collectCoin();
   }
 
   createScore(){
@@ -136,6 +136,14 @@ export default class GameScene extends Phaser.Scene {
       color: '#ffffff',
       fontStyle: 'bold',
     }).setOrigin(0.5, 0);
+  }
+
+  collectCoin(){
+    const collide = this.physics.overlap(this.balloon as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody, this.coin as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody);
+    if(collide){
+      console.log('collide');
+      this.coin?.setAlpha(0);
+    }
   }
 
   recyclePipes() {
@@ -183,6 +191,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   placeCoin(upperY: number, lowerY: number, x: number) {
+    this.coin?.setAlpha(1);
     const position = Phaser.Math.Between(upperY + (this.coin?.height as number) * 0.5, lowerY - (this.coin?.height as number) * 0.5);
     this.coin?.setX(x + 18);
     this.coin?.setY(position);
