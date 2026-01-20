@@ -13,12 +13,18 @@ export default class GameScene extends Phaser.Scene {
   private scoreText: Phaser.GameObjects.Text | undefined;
   private coin: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | undefined;
   private isCoin: number;
-  private dingSound: Phaser.Sound.NoAudioSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.WebAudioSound | undefined;
 
   constructor() {
     super('GameScene');
     this.score = 0;
     this.isCoin = 0;
+    this.isOver = false;
+  }
+
+  init() {
+    this.score = 0;
+    this.isCoin = 0;
+    this.isOver = false;
   }
 
   preload() {
@@ -33,6 +39,7 @@ export default class GameScene extends Phaser.Scene {
       frameHeight: 210
     });
     this.load.audio('ding', 'assets/sounds/ding.mp3');
+    this.load.audio('crash', 'assets/sounds/crash.mp3');
   }
 
   create() {
@@ -116,7 +123,8 @@ export default class GameScene extends Phaser.Scene {
           this.balloon?.setFrame(0); // Replace 0 with your initial frame index or key
       }
     });
-    this.dingSound = this.sound.add('ding');
+    this.sound.add('ding');
+    this.sound.add('crash');
     this.coin.play('coin');
   }
 
@@ -125,6 +133,7 @@ export default class GameScene extends Phaser.Scene {
     // Game loop
 
     if(this.balloon && (this.balloon.y > this.scale.height || this.balloon.y <= 0)){
+      console.log('run', this.isOver);
       this.gameOver();
     }
 
@@ -362,16 +371,19 @@ export default class GameScene extends Phaser.Scene {
         this.scene.restart();
       },
       loop: false,
-    })
+    });
 
+    this.balloon?.setPosition(this.scale.width * 0.15, this.scale.height / 2);
     // Reset the current score also
   }
 
   private gameOver() {
     const { width, height } = this.scale;
+    if(this.isOver) return;
 
     this.isOver = true;
     this.physics.pause();
+    this.sound.play('crash');
     this.overlay = this.add.container(0,0);
     this.overlay.setDepth(1000);
 
