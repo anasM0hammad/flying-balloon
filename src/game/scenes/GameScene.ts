@@ -153,9 +153,15 @@ export default class GameScene extends Phaser.Scene {
     const collide = this.physics.overlap(this.balloon as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody, this.coin as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody);
     if(collide){
       this.time.delayedCall(100, () => {
-        if(this.coin?.alpha !== 0){
+        if(this.coin && this.coin.alpha !== 0){
           this.sound.play('ding', { loop: false });
           this.score += 5;
+          const coinText = this.add.text(this.coin?.x, this.coin?.y - 20, '+5', {
+            fontSize: '22px',
+          })
+          this.time.delayedCall(250, () => {
+            coinText.destroy();
+          });
         }
         this.coin?.setAlpha(0);
       });
