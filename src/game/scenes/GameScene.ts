@@ -13,6 +13,7 @@ export default class GameScene extends Phaser.Scene {
   private scoreText: Phaser.GameObjects.Text | undefined;
   private coin: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | undefined;
   private isCoin: number;
+  private dingSound: Phaser.Sound.NoAudioSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.WebAudioSound | undefined;
 
   constructor() {
     super('GameScene');
@@ -31,6 +32,7 @@ export default class GameScene extends Phaser.Scene {
       frameWidth: 180,
       frameHeight: 210
     });
+    this.load.audio('ding', 'assets/sounds/ding.mp3');
   }
 
   create() {
@@ -114,7 +116,7 @@ export default class GameScene extends Phaser.Scene {
           this.balloon?.setFrame(0); // Replace 0 with your initial frame index or key
       }
     });
-
+    this.dingSound = this.sound.add('ding');
     this.coin.play('coin');
   }
 
@@ -141,10 +143,13 @@ export default class GameScene extends Phaser.Scene {
   collectCoin(){
     const collide = this.physics.overlap(this.balloon as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody, this.coin as Phaser.Types.Physics.Arcade.SpriteWithDynamicBody);
     if(collide){
-      if(this.coin?.alpha !== 0){
-        this.score += 5;
-      }
-      this.coin?.setAlpha(0);
+      this.time.delayedCall(100, () => {
+        if(this.coin?.alpha !== 0){
+          this.sound.play('ding', { loop: false });
+          this.score += 5;
+        }
+        this.coin?.setAlpha(0);
+      });
     }
   }
 
