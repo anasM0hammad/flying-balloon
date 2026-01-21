@@ -58,6 +58,10 @@ export default class GameScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-SPACE',() => {
       this.jump();
     });
+
+    this.input.on('pointerdown', () => {
+      this.jump();
+    });
     // Your game logic here
     this.coin = this.physics.add.sprite(0, 0, 'coin').setScale(0.18).setOrigin(0.5,0.5);
     this.balloon = this.physics.add.sprite(width * 0.15, height / 2, 'balloon').setScale(0.25);
