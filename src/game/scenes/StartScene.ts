@@ -18,7 +18,7 @@ export default class StartScene extends Phaser.Scene {
     const sky = this.add.image(width / 2, height / 2, 'sky');
     sky.setDisplaySize(width, height);
     const banner = this.add.image(width/2, height / 3.5, 'banner');
-    banner.setScale(0.35).setOrigin(0.5,0.5);
+    banner.setScale(0.3).setOrigin(0.5,0.5);
 
     // Title
     // this.add.text(width / 2, height * 0.35, 'Flying Balloon', {
@@ -30,7 +30,7 @@ export default class StartScene extends Phaser.Scene {
     // Start Button
     const startButton = this.createButton(
       width / 2,
-      height * 0.55,
+      height * 0.70,
       'Start',
       0x4a90e2,
       '#ffffff',
@@ -42,7 +42,7 @@ export default class StartScene extends Phaser.Scene {
     // Exit Button
     const exitButton = this.createButton(
       width / 2,
-      height * 0.63,
+      height * 0.78,
       'Exit',
       0xffffff,
       '#000000',

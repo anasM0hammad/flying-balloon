@@ -6,8 +6,6 @@ export default class GameScene extends Phaser.Scene {
   private pauseOverlay?: Phaser.GameObjects.Container;
   private overlay?: Phaser.GameObjects.Container;
   private balloon: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | undefined;
-  // private lowerPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
-  // private upperPipe: Phaser.Types.Physics.Arcade.ImageWithDynamicBody | undefined;
   private pipes: Physics.Arcade.Group | undefined;
   private score: number;
   private scoreText: Phaser.GameObjects.Text | undefined;
@@ -15,10 +13,12 @@ export default class GameScene extends Phaser.Scene {
   private isCoin: number;
   private coinGap: number = 10;
   private horizontalGapRange = [250, 350];
-  private verticalGapRange = [150, 350];
+  private verticalGapRange = [150, 300];
   private pipeSpeed: number = -200;
   private difficulties = ['easy', 'medium', 'hard', 'pro', 'expert'];
   private currentDifficulty = this.difficulties[0];
+  private jumpVelocity = -220;
+  private gravity = 500;
 
   constructor() {
     super('GameScene');
@@ -32,6 +32,8 @@ export default class GameScene extends Phaser.Scene {
     this.isCoin = 0;
     this.isOver = false;
     this.currentDifficulty = this.difficulties[0];
+    this.jumpVelocity = -220;
+    this.gravity = 500;
   }
 
   preload() {
@@ -56,16 +58,16 @@ export default class GameScene extends Phaser.Scene {
     sky.setDisplaySize(width, height);
 
     this.input.keyboard?.on('keydown-SPACE',() => {
-      this.jump();
+      this.jump(this.jumpVelocity);
     });
 
     this.input.on('pointerdown', () => {
-      this.jump();
+      this.jump(this.jumpVelocity);
     });
     // Your game logic here
     this.coin = this.physics.add.sprite(0, 0, 'coin').setScale(0.18).setOrigin(0.5,0.5);
     this.balloon = this.physics.add.sprite(width * 0.15, height / 2, 'balloon').setScale(0.25);
-    this.balloon.setGravityY(500);
+    this.balloon.setGravityY(this.gravity);
     this.balloon.setCircle(this.balloon.displayWidth * 2.1, 0, 0);
 
     this.pipes = this.physics.add.group();
@@ -175,28 +177,38 @@ export default class GameScene extends Phaser.Scene {
   executeDifficulty(){
     if(this.currentDifficulty === this.difficulties[0]){
       this.horizontalGapRange = [250, 350];
-      this.verticalGapRange = [150, 350];
+      this.verticalGapRange = [150, 300];
       this.pipeSpeed = -200;
+      this.jumpVelocity = -220;
+      this.gravity = 500;
     }
     else if(this.currentDifficulty === this.difficulties[1]){
-      this.horizontalGapRange = [260, 330];
-      this.verticalGapRange = [170, 340];
-      this.pipeSpeed = -220;
+      this.horizontalGapRange = [240, 330];
+      this.verticalGapRange = [130, 300];
+      this.pipeSpeed = -230;
+      this.jumpVelocity = -180;
+      this.gravity = 550;
     }
     else if(this.currentDifficulty === this.difficulties[2]){
-      this.horizontalGapRange = [275, 320];
-      this.verticalGapRange = [180, 325];
-      this.pipeSpeed = -235;
+      this.horizontalGapRange = [225, 320];
+      this.verticalGapRange = [120, 290];
+      this.pipeSpeed = -245;
+      this.jumpVelocity = -250;
+      this.gravity = 450;
     }
     else if(this.currentDifficulty === this.difficulties[3]){
-      this.horizontalGapRange = [285, 310];
-      this.verticalGapRange = [190, 315];
-      this.pipeSpeed = -245;
+      this.horizontalGapRange = [205, 310];
+      this.verticalGapRange = [110, 285];
+      this.pipeSpeed = -255;
+      this.jumpVelocity = -280;
+      this.gravity = 420;
     }
     else {
-      this.horizontalGapRange = [290, 305];
-      this.verticalGapRange = [195, 310];
-      this.pipeSpeed = -280;
+      this.horizontalGapRange = [200, 305];
+      this.verticalGapRange = [100, 270];
+      this.pipeSpeed = -290;
+      this.jumpVelocity = -250;
+      this.gravity = 550;
     }
 
     this.pipes?.setVelocityX(this.pipeSpeed);
