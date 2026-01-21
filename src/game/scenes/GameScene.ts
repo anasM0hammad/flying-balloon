@@ -13,6 +13,12 @@ export default class GameScene extends Phaser.Scene {
   private scoreText: Phaser.GameObjects.Text | undefined;
   private coin: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody | undefined;
   private isCoin: number;
+  private coinGap: number = 10;
+  private horizontalGapRange = [250, 350];
+  private verticalGapRange = [150, 350];
+  private pipeSpeed: number = -200;
+  private difficulties = ['easy', 'medium', 'hard', 'pro', 'expert'];
+  private currentDifficulty = this.difficulties[0];
 
   constructor() {
     super('GameScene');
@@ -25,6 +31,7 @@ export default class GameScene extends Phaser.Scene {
     this.score = 0;
     this.isCoin = 0;
     this.isOver = false;
+    this.currentDifficulty = this.difficulties[0];
   }
 
   preload() {
@@ -98,8 +105,8 @@ export default class GameScene extends Phaser.Scene {
       this.placePipes(upperPipe, lowerPipe, i===3);
     }
 
-    this.pipes.setVelocityX(-200);
-    this.coin.setVelocityX(-200);
+    this.pipes.setVelocityX(this.pipeSpeed);
+    this.coin.setVelocityX(this.pipeSpeed);
 
     this.physics.add.collider(this.balloon, this.pipes, this.gameOver, undefined, this);
     this.createScore();
@@ -139,6 +146,57 @@ export default class GameScene extends Phaser.Scene {
 
     this.recyclePipes();
     this.collectCoin();
+    this.setDifficulty();
+    this.executeDifficulty();
+  }
+
+  setDifficulty(){
+    if(this.score < 20){
+      this.currentDifficulty = this.difficulties[0];
+    }
+    else if(this.score >= 20 && this.score < 50){
+      this.currentDifficulty = this.difficulties[1];
+    }
+    else if(this.score >= 50 && this.score < 70){
+      this.currentDifficulty = this.difficulties[2];
+    }
+    else if(this.score >= 70 && this.score < 100){
+      this.currentDifficulty = this.difficulties[3];
+    }
+    else{
+      this.currentDifficulty = this.difficulties[4];
+    }
+  }
+
+  executeDifficulty(){
+    if(this.currentDifficulty === this.difficulties[0]){
+      this.horizontalGapRange = [250, 350];
+      this.verticalGapRange = [150, 350];
+      this.pipeSpeed = -200;
+    }
+    else if(this.currentDifficulty === this.difficulties[1]){
+      this.horizontalGapRange = [260, 330];
+      this.verticalGapRange = [170, 340];
+      this.pipeSpeed = -220;
+    }
+    else if(this.currentDifficulty === this.difficulties[2]){
+      this.horizontalGapRange = [275, 320];
+      this.verticalGapRange = [180, 325];
+      this.pipeSpeed = -235;
+    }
+    else if(this.currentDifficulty === this.difficulties[3]){
+      this.horizontalGapRange = [285, 310];
+      this.verticalGapRange = [190, 315];
+      this.pipeSpeed = -245;
+    }
+    else {
+      this.horizontalGapRange = [290, 305];
+      this.verticalGapRange = [195, 310];
+      this.pipeSpeed = -280;
+    }
+
+    this.pipes?.setVelocityX(this.pipeSpeed);
+    this.coin?.setVelocityX(this.pipeSpeed);
   }
 
   createScore(){
@@ -214,7 +272,7 @@ export default class GameScene extends Phaser.Scene {
 
   placeCoin(upperY: number, lowerY: number, x: number) {
     this.coin?.setAlpha(1);
-    const position = Phaser.Math.Between(upperY + (this.coin?.height as number) * 0.5, lowerY - (this.coin?.height as number) * 0.5);
+    const position = Phaser.Math.Between(upperY + this.coinGap, lowerY - this.coinGap);
     this.coin?.setX(x + 18);
     this.coin?.setY(position);
   }
@@ -433,7 +491,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   getPipeGap() {
-    return Phaser.Math.Between(150, 350);
+    return Phaser.Math.Between(this.verticalGapRange[0], this.verticalGapRange[1]);
   }
 
   getUpperPipePosition() {
@@ -441,6 +499,6 @@ export default class GameScene extends Phaser.Scene {
   }
 
   getPipeHorizontalDistance() {
-    return Phaser.Math.Between(250, 350);
+    return Phaser.Math.Between(this.horizontalGapRange[0], this.horizontalGapRange[1]);
   }
 }
