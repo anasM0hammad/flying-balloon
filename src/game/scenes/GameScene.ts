@@ -55,8 +55,29 @@ export default class GameScene extends Phaser.Scene {
     const sky = this.add.image(width / 2, height / 2, 'sky');
     sky.setDisplaySize(width, height);
 
-    // Back button (top left)
-    const backText = this.add.text(20, 20, 'Back', {
+    this.input.keyboard?.on('keydown-SPACE',() => {
+      this.jump();
+    });
+    // Your game logic here
+    this.coin = this.physics.add.sprite(0, 0, 'coin').setScale(0.18).setOrigin(0.5,0.5);
+    this.balloon = this.physics.add.sprite(width * 0.15, height / 2, 'balloon').setScale(0.25);
+    this.balloon.setGravityY(500);
+    this.balloon.setCircle(this.balloon.displayWidth * 2.1, 0, 0);
+
+    this.pipes = this.physics.add.group();
+    for(let i=0; i<4; i++){
+      const upperPipe = this.pipes.create(0, 0, 'pipe').setImmovable().setOrigin(0, 1).setFlipY(true);
+      const lowerPipe = this.pipes.create(0, 0, 'pipe').setImmovable().setOrigin(0,0);
+      this.placePipes(upperPipe, lowerPipe, i===3);
+    }
+
+    this.pipes.setVelocityX(this.pipeSpeed);
+    this.coin.setVelocityX(this.pipeSpeed);
+
+    this.physics.add.collider(this.balloon, this.pipes, this.gameOver, undefined, this);
+    this.createScore();
+      // Back button (top left)
+      const backText = this.add.text(20, 20, 'Back', {
       fontSize: '20px',
       color: '#ffffff',
       fontStyle: 'bold',
@@ -89,27 +110,6 @@ export default class GameScene extends Phaser.Scene {
       pauseText.setAlpha(1);
     });
 
-    this.input.keyboard?.on('keydown-SPACE',() => {
-      this.jump();
-    });
-    // Your game logic here
-    this.coin = this.physics.add.sprite(0, 0, 'coin').setScale(0.18).setOrigin(0.5,0.5);
-    this.balloon = this.physics.add.sprite(width * 0.15, height / 2, 'balloon').setScale(0.25);
-    this.balloon.setGravityY(500);
-    this.balloon.setCircle(this.balloon.displayWidth * 2.1, 0, 0);
-
-    this.pipes = this.physics.add.group();
-    for(let i=0; i<4; i++){
-      const upperPipe = this.pipes.create(0, 0, 'pipe').setImmovable().setOrigin(0, 1).setFlipY(true);
-      const lowerPipe = this.pipes.create(0, 0, 'pipe').setImmovable().setOrigin(0,0);
-      this.placePipes(upperPipe, lowerPipe, i===3);
-    }
-
-    this.pipes.setVelocityX(this.pipeSpeed);
-    this.coin.setVelocityX(this.pipeSpeed);
-
-    this.physics.add.collider(this.balloon, this.pipes, this.gameOver, undefined, this);
-    this.createScore();
     this.anims.create({
       key: 'fly',
       frames: this.anims.generateFrameNumbers('balloon', { start: 13, end: 15 }),
