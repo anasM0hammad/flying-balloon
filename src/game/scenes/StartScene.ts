@@ -8,6 +8,7 @@ export default class StartScene extends Phaser.Scene {
 
   preload() {
     this.load.image('sky', 'assets/images/sky.png');
+    this.load.image('banner', 'assets/images/banner.png');
   }
 
   create() {
@@ -16,13 +17,15 @@ export default class StartScene extends Phaser.Scene {
     // Background
     const sky = this.add.image(width / 2, height / 2, 'sky');
     sky.setDisplaySize(width, height);
+    const banner = this.add.image(width/2, height / 3.5, 'banner');
+    banner.setScale(0.35).setOrigin(0.5,0.5);
 
     // Title
-    this.add.text(width / 2, height * 0.35, 'Flying Balloon', {
-      fontSize: '46px',
-      color: '#ffffff',
-      fontStyle: 'bold',
-    }).setOrigin(0.5);
+    // this.add.text(width / 2, height * 0.35, 'Flying Balloon', {
+    //   fontSize: '46px',
+    //   color: '#ffffff',
+    //   fontStyle: 'bold',
+    // }).setOrigin(0.5);
 
     // Start Button
     const startButton = this.createButton(
