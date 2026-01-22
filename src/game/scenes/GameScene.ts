@@ -67,7 +67,7 @@ export default class GameScene extends Phaser.Scene {
     });
     // Your game logic here
     this.coin = this.physics.add.sprite(0, 0, 'coin').setScale(0.18).setOrigin(0.5,0.5);
-    this.balloon = this.physics.add.sprite(width * 0.15, height / 2, 'balloon').setScale(0.25);
+    this.balloon = this.physics.add.sprite(width * 0.15, height / 2, 'balloon').setDisplaySize(40, 60);
     this.balloon.setGravityY(this.gravity);
     this.balloon.setCircle(this.balloon.displayWidth * 2.1, 0, 0);
 
