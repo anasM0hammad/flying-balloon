@@ -49,6 +49,7 @@ export default class GameScene extends Phaser.Scene {
     });
     this.load.audio('ding', 'assets/sounds/ding.mp3');
     this.load.audio('crash', 'assets/sounds/crash.mp3');
+    this.load.audio('swoosh', 'assets/sounds/swoosh.mp3');
   }
 
   create() {
@@ -138,6 +139,9 @@ export default class GameScene extends Phaser.Scene {
     });
     this.sound.add('ding');
     this.sound.add('crash');
+    this.sound.add('swoosh', {
+      volume: 0.2
+    });
     this.coin.play('coin');
   }
 
@@ -311,6 +315,7 @@ export default class GameScene extends Phaser.Scene {
     if(!this.balloon || this.isPaused) return;
     this.balloon.body.setVelocityY(velocity);
     this.balloon.play('fly');
+    this.sound.play('swoosh');
   }
 
 
