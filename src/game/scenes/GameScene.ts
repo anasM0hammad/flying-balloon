@@ -13,7 +13,7 @@ export default class GameScene extends Phaser.Scene {
   private isCoin: number;
   private coinGap: number = 10;
   private horizontalGapRange = [250, 350];
-  private verticalGapRange = [130, 200];
+  private verticalGapRange = [120, 180];
   private pipeSpeed: number = -200;
   private difficulties = ['easy', 'medium', 'hard', 'pro', 'expert'];
   private currentDifficulty = this.difficulties[0];
@@ -181,36 +181,36 @@ export default class GameScene extends Phaser.Scene {
   executeDifficulty(){
     if(this.currentDifficulty === this.difficulties[0]){
       this.horizontalGapRange = [250, 350];
-      this.verticalGapRange = [130, 200];
+      this.verticalGapRange = [120, 180];
       this.pipeSpeed = -200;
       this.jumpVelocity = -200;
       this.gravity = 500;
     }
     else if(this.currentDifficulty === this.difficulties[1]){
-      this.horizontalGapRange = [240, 330];
-      this.verticalGapRange = [120, 180];
+      this.horizontalGapRange = [230, 320];
+      this.verticalGapRange = [110, 170];
       this.pipeSpeed = -230;
       this.jumpVelocity = -180;
       this.gravity = 550;
     }
     else if(this.currentDifficulty === this.difficulties[2]){
-      this.horizontalGapRange = [225, 320];
-      this.verticalGapRange = [100, 150];
+      this.horizontalGapRange = [215, 310];
+      this.verticalGapRange = [90, 140];
       this.pipeSpeed = -250;
       this.jumpVelocity = -250;
       this.gravity = 450;
     }
     else if(this.currentDifficulty === this.difficulties[3]){
-      this.horizontalGapRange = [205, 310];
-      this.verticalGapRange = [90, 110];
-      this.pipeSpeed = -255;
+      this.horizontalGapRange = [205, 300];
+      this.verticalGapRange = [80, 100];
+      this.pipeSpeed = -265;
       this.jumpVelocity = -280;
       this.gravity = 420;
     }
     else {
-      this.horizontalGapRange = [200, 305];
-      this.verticalGapRange = [85, 100];
-      this.pipeSpeed = -290;
+      this.horizontalGapRange = [190, 295];
+      this.verticalGapRange = [70, 90];
+      this.pipeSpeed = -300;
       this.jumpVelocity = -250;
       this.gravity = 650;
     }
