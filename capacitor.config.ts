@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.flyingband.game',
-  appName: 'Flying Band',
+  appId: 'com.anaslyzer.flyingBalloon',
+  appName: 'Flying Balloon',
   webDir: 'dist',
   server: {
     androidScheme: 'https',
