@@ -312,7 +312,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   jump(velocity: number = -220) {
-    if(!this.balloon || this.isPaused) return;
+    if(!this.balloon || this.isPaused || this.isOver) return;
     this.balloon.body.setVelocityY(velocity);
     this.balloon.play('fly');
     this.sound.play('swoosh');
